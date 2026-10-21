@@ -1,4 +1,5 @@
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
+import { ThemeToggle } from './components/ThemeToggle'
 import { AttemptPage } from './pages/AttemptPage'
 import { BuilderPage } from './pages/BuilderPage'
 import { ExamPage } from './pages/ExamPage'
@@ -35,6 +36,7 @@ export default function App() {
               <NavLink to="/settings">Settings</NavLink>
             </li>
           </ul>
+          <ThemeToggle />
         </nav>
       </header>
       <main>
