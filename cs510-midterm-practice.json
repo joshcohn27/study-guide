@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "course": "CS 510 Artificial Intelligence",
+  "title": "CS 510 Practice Midterm",
+  "timeLimitMinutes": 90,
+  "sections": [
+    {
+      "title": "Part 1: True or False",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Breadth-first search (BFS) is guaranteed to find the shortest path when every step costs the same.",
+          "answer": true,
+          "explanation": "BFS finds the shallowest goal, which is the shortest path when every step costs the same."
+        },
+        {
+          "id": "q2",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Greedy best-first search is guaranteed to find the shortest path if its heuristic is admissible.",
+          "answer": false,
+          "explanation": "Greedy only looks at h(n) and ignores the cost already spent. A* with an admissible heuristic is the one that is optimal."
+        },
+        {
+          "id": "q3",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Alpha-beta pruning can return a different root value than plain minimax on the same tree.",
+          "answer": false,
+          "explanation": "Alpha-beta only skips branches that cannot change the result, so the root value always matches minimax."
+        },
+        {
+          "id": "q4",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Simulated annealing never moves to a state that is worse than the current state.",
+          "answer": false,
+          "explanation": "It accepts worse moves with a probability that shrinks as the temperature drops. That is how it escapes local optima."
+        },
+        {
+          "id": "q5",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Local search algorithms must keep the full path from the start state to the goal in memory.",
+          "answer": false,
+          "explanation": "Local search keeps only the current state (or k states for local beam). The path does not matter."
+        },
+        {
+          "id": "q6",
+          "type": "true_false",
+          "points": 1,
+          "prompt": "Epsilon-greedy keeps a flat, constant regret over time because it keeps exploring at the same rate forever.",
+          "answer": true,
+          "explanation": "From lecture: epsilon-greedy converges fast but keeps a flat regret, while UCB1 is better long term but slower to converge."
+        }
+      ]
+    },
+    {
+      "title": "Part 2: Matching",
+      "questions": [
+        {
+          "id": "q7",
+          "type": "matching",
+          "points": 2,
+          "prompt": "Match each search algorithm to the order it takes nodes off the open list. Each letter is used once.",
+          "options": [
+            { "key": "a", "text": "Lowest h(n) first" },
+            { "key": "b", "text": "Lowest g(n) + h(n) first" },
+            { "key": "c", "text": "First in, first out (queue)" },
+            { "key": "d", "text": "Last in, first out (stack)" },
+            { "key": "e", "text": "Lowest g(n) first" }
+          ],
+          "rows": [
+            { "label": "Breadth-first search (BFS)", "answer": "c" },
+            { "label": "Depth-first search (DFS)", "answer": "d" },
+            { "label": "Uniform cost search (UCS)", "answer": "e" },
+            { "label": "A* search", "answer": "b" },
+            { "label": "Greedy best-first search", "answer": "a" }
+          ],
+          "explanation": "g(n) is the real cost so far and h(n) is the estimate to the goal. A* uses both, UCS uses only g, greedy uses only h."
+        },
+        {
+          "id": "q8",
+          "type": "matching",
+          "points": 2,
+          "prompt": "Match each environment property to its definition. Each letter is used once.",
+          "options": [
+            { "key": "a", "text": "The world can change while the agent is deciding" },
+            { "key": "b", "text": "Current choices affect future decisions" },
+            { "key": "c", "text": "The agent cannot see the whole relevant state" },
+            { "key": "d", "text": "The next state involves randomness with known probabilities" }
+          ],
+          "rows": [
+            { "label": "Partially observable", "answer": "c" },
+            { "label": "Stochastic", "answer": "d" },
+            { "label": "Sequential", "answer": "b" },
+            { "label": "Dynamic", "answer": "a" }
+          ],
+          "explanation": "These come from the week 1 task environment terms."
+        },
+        {
+          "id": "q9",
+          "type": "matching",
+          "points": 2,
+          "prompt": "Match each local search algorithm to its description. Each letter is used once.",
+          "options": [
+            { "key": "a", "text": "Keeps k states at the same time" },
+            { "key": "b", "text": "Combines two parent states and adds random mutation" },
+            { "key": "c", "text": "Moves only to strictly better neighbors and stops when none are better" },
+            { "key": "d", "text": "Accepts worse moves with a probability that shrinks over time" },
+            { "key": "e", "text": "Starts over from new random states as time allows" }
+          ],
+          "rows": [
+            { "label": "Hill climbing", "answer": "c" },
+            { "label": "Random-restart hill climbing", "answer": "e" },
+            { "label": "Simulated annealing", "answer": "d" },
+            { "label": "Local beam search", "answer": "a" },
+            { "label": "Genetic algorithm", "answer": "b" }
+          ],
+          "explanation": "Local beam search is basically several random-restart runs at once, and genetic algorithms use crossover plus mutation."
+        },
+        {
+          "id": "q10",
+          "type": "multi_match",
+          "points": 2,
+          "prompt": "Multi-match. For each algorithm, check every letter that applies. A row can have more than one, or none.",
+          "options": [
+            { "key": "a", "text": "Optimal when every step costs the same" },
+            { "key": "b", "text": "Memory use grows linearly with depth" },
+            { "key": "c", "text": "Complete when the branching factor is finite" }
+          ],
+          "rows": [
+            { "label": "BFS", "answers": ["a", "c"] },
+            { "label": "DFS", "answers": ["b"] },
+            { "label": "Iterative deepening search (IDS)", "answers": ["a", "b", "c"] },
+            { "label": "A* with an admissible heuristic", "answers": ["a", "c"] },
+            { "label": "Hill climbing", "answers": [] }
+          ],
+          "explanation": "IDS gets the best of both: BFS's optimality and completeness with DFS's linear memory. A* keeps its whole frontier, so its memory is not linear. Hill climbing is not optimal or complete, and it keeps one state, so its memory does not grow at all."
+        }
+      ]
+    },
+    {
+      "title": "Part 3: Short Answer",
+      "questions": [
+        {
+          "id": "q11",
+          "type": "short_answer",
+          "points": 3,
+          "prompt": "Give a full PEAS description (Performance measure, Environment, Actuators, Sensors) for a robot lawn mower. Your performance measure must include numbers.",
+          "modelAnswer": "Performance: +10 per square meter mowed, -50 per collision, -100 for leaving the yard boundary, -1 per minute of run time, -20 if the battery dies away from the dock.\nEnvironment: lawn, grass, boundary wire or fence, trees, flower beds, toys, pets, people, weather, charging dock.\nActuators: wheels and drive motors, steering, cutting blade motor, blade height adjuster.\nSensors: bump sensors, boundary wire sensor, GPS, camera, wheel encoders, battery level sensor, rain sensor.",
+          "rubric": "Full credit needs all four parts and numbers in the performance measure. No numbers means you lose points."
+        },
+        {
+          "id": "q12",
+          "type": "short_answer",
+          "points": 3,
+          "prompt": "Classify online Texas Hold'em poker on each property below, with a one-line reason for each: fully or partially observable, single or multi-agent, deterministic or stochastic, episodic or sequential, static or dynamic, discrete or continuous.",
+          "modelAnswer": "Partially observable: you cannot see other players' cards.\nMulti-agent: other players compete with you.\nStochastic: the cards dealt are random.\nSequential: earlier bets affect later choices and your read on players.\nStatic (no shot clock): the game waits for you. Dynamic is fine if you argued a time limit.\nDiscrete: a countable set of cards, actions, and bet amounts.",
+          "rubric": "Half a point per property with a reason."
+        },
+        {
+          "id": "q13",
+          "type": "short_answer",
+          "points": 4,
+          "prompt": "You have a 4-gallon jug and a 3-gallon jug, both empty, and a tap with unlimited water. The goal is exactly 2 gallons in the 4-gallon jug. You can fill a jug, empty a jug, or pour one jug into the other until the source is empty or the target is full.\n\n(a) Describe the state representation, initial state, actions, and goal test.\n(b) List the states in the first 2 layers of the BFS tree below the initial state. Do not go deeper than 2 layers.",
+          "modelAnswer": "(a) State: (x, y), x = gallons in the 4-gallon jug (0 to 4), y = gallons in the 3-gallon jug (0 to 3). Initial state: (0, 0). Actions: fill 4, fill 3, empty 4, empty 3, pour 4 into 3, pour 3 into 4, each only when it changes the state. Goal test: x = 2.\n(b) Layer 1: (4, 0) and (0, 3).\nLayer 2 from (4, 0): (4, 3), (1, 3), and (0, 0) as a repeat.\nLayer 2 from (0, 3): (4, 3), (3, 0), and (0, 0) as a repeat.\nNew states at layer 2: (4, 3), (1, 3), (3, 0).",
+          "rubric": "2 points for (a), 2 points for (b). Going past 2 layers wastes time and gets no extra credit."
+        },
+        {
+          "id": "q14",
+          "type": "short_answer",
+          "points": 3,
+          "prompt": "(a) For the 8-puzzle, is \"2 times the number of misplaced tiles\" an admissible heuristic? Explain in one or two sentences.\n(b) A robot moves on a grid one square at a time, up, down, left, or right, and each move costs 1. Give an admissible heuristic for reaching a goal square and say why it never overestimates.",
+          "modelAnswer": "(a) No. One misplaced tile can be one move from its spot, but this heuristic would say 2, so it can overestimate. Plain misplaced tiles is admissible.\n(b) Manhattan distance: |row difference| + |column difference|. Each move changes the row or column by only 1, so the robot needs at least that many moves even with no walls.",
+          "rubric": "1.5 points each part. The reason matters as much as the answer."
+        },
+        {
+          "id": "q15",
+          "type": "short_answer",
+          "points": 3,
+          "prompt": "The root is a MAX node with three MIN children, A, B, and C, each with three leaves, searched left to right. Using alpha-beta pruning: (a) what is the root value, (b) which child does MAX choose, and (c) which leaves are pruned?",
+          "table": {
+            "headers": ["MIN node", "Leaf values (left to right)"],
+            "rows": [
+              ["A", "5, 2, 9"],
+              ["B", "1, 8, 7"],
+              ["C", "6, 1, 4"]
+            ]
+          },
+          "modelAnswer": "A sees 5, 2, 9, so A = 2 and alpha becomes 2.\nB: first leaf is 1, so B is at most 1, which is below alpha 2. Prune 8 and 7.\nC: sees 6 (at most 6), then 1 (at most 1, below alpha 2). Prune 4.\n(a) Root value = 2. (b) MAX chooses A. (c) Pruned: B's 8 and 7, and C's 4.",
+          "rubric": "1 point each for (a), (b), (c). Missing the prune of C's 4 is the common mistake."
+        },
+        {
+          "id": "q16",
+          "type": "short_answer",
+          "points": 1,
+          "prompt": "Alpha-beta pruning gives an optimal move for tic-tac-toe but not for chess. Explain why.",
+          "modelAnswer": "Tic-tac-toe is small enough to search the whole tree to the real end of the game, so every value is exact. Chess is too large, so the search stops at a depth limit and uses an evaluation function, which is only an estimate.",
+          "rubric": "Full credit for mentioning full tree vs. depth cutoff with an estimated evaluation."
+        },
+        {
+          "id": "q17",
+          "type": "short_answer",
+          "points": 2,
+          "prompt": "Name the four steps of Monte Carlo Tree Search (MCTS) in order and say what happens in each. Which step uses the tree policy and which uses the default policy?",
+          "modelAnswer": "1. Selection: walk down from the root using the tree policy (UCB1 or epsilon-greedy) to a node that is not fully expanded.\n2. Expansion: add a new child node.\n3. Simulation (rollout or playout): play to the end of the game with the default policy, usually random moves.\n4. Backpropagation: pass the result back up to the root, updating win and visit counts.\nTree policy = selection. Default policy = simulation.",
+          "rubric": "1 point for the four steps in order, 1 point for placing the two policies correctly."
+        },
+        {
+          "id": "q18",
+          "type": "short_answer",
+          "points": 2,
+          "prompt": "A delivery company has 2,000 stops to route and 30 seconds of compute time. A route a few turns longer than the best possible route is fine. Which local search algorithm would you use and why? What is the state, and what number are you minimizing?",
+          "modelAnswer": "Simulated annealing. The space is huge, near-optimal is good enough, and the 30-second limit can be the cooling schedule: explore early, refine the best route late. State: an ordering of the 2,000 stops. Minimize: total route distance or travel time.",
+          "rubric": "Random-restart hill climbing or local beam search is acceptable if well justified."
+        }
+      ]
+    },
+    {
+      "title": "Extra Credit",
+      "questions": [
+        {
+          "id": "ec",
+          "type": "short_answer",
+          "points": 2,
+          "extraCredit": true,
+          "prompt": "Design your own MCTS tree policy that explores a lot early and less later. Describe how it picks a child, and compare it to epsilon-greedy and UCB1 (Upper Confidence Bound): when might it be better, and when might it be worse?",
+          "modelAnswer": "Decaying epsilon-greedy: with probability epsilon pick a random child, otherwise pick the current best, and shrink epsilon over time (for example, epsilon = 1 / square root of the visit count).\nBetter than plain epsilon-greedy: explores a lot early, but regret keeps shrinking instead of staying flat.\nBetter than UCB1: simpler and can converge faster in practice.\nWorse than UCB1: exploration is random, not aimed at rarely visited children, and if epsilon shrinks too fast it can lock onto a child that only looked good from early luck.",
+          "rubric": "Any reasonable policy with a clear rule and honest tradeoffs earns credit."
+        }
+      ]
+    }
+  ]
+}
