@@ -40,30 +40,35 @@ export function SelfScoreControls({ points, value, onChange }: Props) {
     onChange(parsed)
   }
 
-  let status = 'Not scored yet.'
+  function pressedFor(score: number): boolean {
+    return value === score
+  }
+
+  let status = 'Compare your answer to the model answer, then give yourself credit.'
   if (value !== undefined) {
     status = `You gave yourself ${formatPoints(value)} of ${formatPoints(points)}.`
   }
 
   return (
-    <fieldset>
+    <fieldset className="self-score">
       <legend>Score yourself</legend>
-      <p>Compare your answer to the model answer and rubric, then give yourself credit.</p>
-      <button type="button" onClick={() => pick(points)}>
-        Full
-      </button>{' '}
-      <button type="button" onClick={() => pick(points / 2)}>
-        Half
-      </button>{' '}
-      <button type="button" onClick={() => pick(0)}>
-        None
-      </button>{' '}
-      <label>
-        or points (0 to {formatPoints(points)}){' '}
-        <input type="text" inputMode="decimal" size={5} value={text} onChange={(event) => type(event.target.value)} />
-      </label>
+      <p className="hint">{status}</p>
+      <div className="button-row">
+        <button type="button" aria-pressed={pressedFor(points)} onClick={() => pick(points)}>
+          Full
+        </button>
+        <button type="button" aria-pressed={pressedFor(points / 2)} onClick={() => pick(points / 2)}>
+          Half
+        </button>
+        <button type="button" aria-pressed={pressedFor(0)} onClick={() => pick(0)}>
+          None
+        </button>
+        <label className="inline-field">
+          or points (0 to {formatPoints(points)})
+          <input type="text" inputMode="decimal" size={5} value={text} onChange={(event) => type(event.target.value)} />
+        </label>
+      </div>
       {error && <p role="alert">{error}</p>}
-      <p>{status}</p>
     </fieldset>
   )
 }

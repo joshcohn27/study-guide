@@ -15,15 +15,15 @@ const cases: { question: Question; hidden: string }[] = [
   { question: { ...extras, id: 'tf', type: 'true_false', points: 1, prompt: 'p', answer: true }, hidden: 'Correct answer' },
   {
     question: { ...extras, id: 'mc', type: 'multiple_choice', points: 1, prompt: 'p', options, answer: 'a' },
-    hidden: '(correct answer)',
+    hidden: 'Correct answer',
   },
   {
     question: { ...extras, id: 'ms', type: 'multi_select', points: 1, prompt: 'p', options, answers: ['a'] },
-    hidden: '(should be checked)',
+    hidden: 'Should be checked',
   },
   {
     question: { ...extras, id: 'ma', type: 'matching', points: 1, prompt: 'p', options, rows: [{ label: 'x', answer: 'a' }] },
-    hidden: 'Correct match',
+    hidden: 'Answer: a<',
   },
   {
     question: {
@@ -35,7 +35,7 @@ const cases: { question: Question; hidden: string }[] = [
       options,
       rows: [{ label: 'x', answers: ['b'] }],
     },
-    hidden: '>Correct<',
+    hidden: 'Answer: b',
   },
   {
     question: { ...extras, id: 'fb', type: 'fill_blank', points: 1, prompt: 'p', acceptedAnswers: ['SECRET_BLANK'] },
@@ -47,7 +47,7 @@ const cases: { question: Question; hidden: string }[] = [
   },
   {
     question: { ...extras, id: 'or', type: 'ordering', points: 1, prompt: 'p', items: ['one', 'two'] },
-    hidden: 'Correct order',
+    hidden: 'Right spot',
   },
   {
     question: { ...extras, id: 'sa', type: 'short_answer', points: 1, prompt: 'p', modelAnswer: 'SECRET_MODEL' },
@@ -77,6 +77,9 @@ describe('QuestionCard', () => {
       expect(before).not.toContain(hidden)
       expect(before).not.toContain('SECRET_EXPLANATION')
       expect(before).not.toContain('SECRET_RUBRIC')
+      expect(before).not.toContain('class="mark')
+      expect(before).not.toContain('choice-correct')
+      expect(before).not.toContain('question-status')
 
       const after = render(question, true)
       expect(after).toContain(hidden)

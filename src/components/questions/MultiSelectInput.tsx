@@ -1,4 +1,6 @@
 import type { MultiSelectQuestion } from '../../types'
+import { choiceClass } from './helpers'
+import { Mark } from './Mark'
 import type { InputProps } from './types'
 
 export function MultiSelectInput({ question, value, onChange, reveal }: InputProps<MultiSelectQuestion, string[]>) {
@@ -14,22 +16,24 @@ export function MultiSelectInput({ question, value, onChange, reveal }: InputPro
 
   return (
     <fieldset>
-      <legend>Check all that apply</legend>
-      <ul>
-        {question.options.map((option) => (
-          <li key={option.key}>
-            <label>
-              <input
-                type="checkbox"
-                checked={picked.includes(option.key)}
-                disabled={reveal}
-                onChange={() => toggle(option.key)}
-              />{' '}
-              {option.key}. {option.text}
-            </label>
-            {reveal && question.answers.includes(option.key) && <strong> (should be checked)</strong>}
-          </li>
-        ))}
+      <legend className="hint">Check all that apply</legend>
+      <ul className="choices">
+        {question.options.map((option) => {
+          const shouldCheck = question.answers.includes(option.key)
+          const isPicked = picked.includes(option.key)
+          const wrongPick = isPicked && !shouldCheck
+          return (
+            <li key={option.key} className={choiceClass(reveal, shouldCheck, wrongPick)}>
+              <label>
+                <input type="checkbox" checked={isPicked} disabled={reveal} onChange={() => toggle(option.key)} />
+                <span className="choice-key">{option.key}.</span> {option.text}
+              </label>
+              {reveal && shouldCheck && isPicked && <Mark kind="correct">Correct</Mark>}
+              {reveal && shouldCheck && !isPicked && <Mark kind="correct">Should be checked</Mark>}
+              {reveal && wrongPick && <Mark kind="wrong">Should not be checked</Mark>}
+            </li>
+          )
+        })}
       </ul>
     </fieldset>
   )

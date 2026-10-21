@@ -1,4 +1,6 @@
 import type { TrueFalseQuestion } from '../../types'
+import { choiceClass } from './helpers'
+import { Mark } from './Mark'
 import type { InputProps } from './types'
 
 function label(value: boolean): string {
@@ -12,20 +14,23 @@ export function TrueFalseInput({ question, value, onChange, reveal }: InputProps
   const name = `answer-${question.id}`
   return (
     <fieldset>
-      <legend>Your answer</legend>
-      {[true, false].map((choice) => (
-        <label key={label(choice)}>
-          <input
-            type="radio"
-            name={name}
-            checked={value === choice}
-            disabled={reveal}
-            onChange={() => onChange(choice)}
-          />{' '}
-          {label(choice)}{' '}
-        </label>
-      ))}
-      {reveal && <p>Correct answer: {label(question.answer)}</p>}
+      <legend className="visually-hidden">Your answer</legend>
+      <ul className="choices">
+        {[true, false].map((choice) => {
+          const isAnswer = choice === question.answer
+          const picked = value === choice
+          return (
+            <li key={label(choice)} className={choiceClass(reveal, isAnswer, picked && !isAnswer)}>
+              <label>
+                <input type="radio" name={name} checked={picked} disabled={reveal} onChange={() => onChange(choice)} />
+                {label(choice)}
+              </label>
+              {reveal && isAnswer && <Mark kind="correct">Correct answer</Mark>}
+              {reveal && picked && !isAnswer && <Mark kind="wrong">Your answer</Mark>}
+            </li>
+          )
+        })}
+      </ul>
     </fieldset>
   )
 }
