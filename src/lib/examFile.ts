@@ -70,3 +70,17 @@ export function countQuestions(sections: Section[]): number {
   }
   return count
 }
+
+export function totalPoints(sections: Section[]): { regular: number; extra: number } {
+  const totals = { regular: 0, extra: 0 }
+  for (const section of sections) {
+    for (const q of section.questions) {
+      if (q.extraCredit) {
+        totals.extra += q.points
+      } else {
+        totals.regular += q.points
+      }
+    }
+  }
+  return totals
+}

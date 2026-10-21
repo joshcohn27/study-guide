@@ -5,14 +5,15 @@ export type LoadState<T> =
   | { status: 'ready'; data: T }
   | { status: 'error'; message: string }
 
-// runs an async loader when deps change, with a reload for after saves
-export function useLoad<T>(load: () => Promise<T>, deps: unknown[]) {
+// runs an async loader whenever arg changes, with a reload for after saves.
+// pass a loader defined outside the component so it stays the same between renders.
+export function useLoad<A, T>(load: (arg: A) => Promise<T>, arg: A) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' })
   const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let active = true
-    load()
+    load(arg)
       .then((data) => {
         if (active) {
           setState({ status: 'ready', data })
@@ -30,7 +31,7 @@ export function useLoad<T>(load: () => Promise<T>, deps: unknown[]) {
     return () => {
       active = false
     }
-  }, [...deps, version])
+  }, [load, arg, version])
 
   const reload = useCallback(() => {
     setVersion((value) => value + 1)
