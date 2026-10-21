@@ -60,6 +60,17 @@ export function allQuestions(sections: Section[]): Question[] {
   return result
 }
 
+// question number shown to the user, counted across all sections
+export function questionNumbers(sections: Section[]): Record<string, number> {
+  const numbers: Record<string, number> = {}
+  let count = 0
+  for (const q of allQuestions(sections)) {
+    count += 1
+    numbers[q.id] = count
+  }
+  return numbers
+}
+
 // ids of questions that weren't fully right in a finished attempt
 export function missedQuestionIds(attempt: Attempt): string[] {
   const missed: string[] = []
@@ -141,7 +152,9 @@ export function timeUsedMs(attempt: Attempt, now: number): number {
   if (attempt.runningSince === null) {
     return attempt.elapsedMs
   }
-  return attempt.elapsedMs + (now - attempt.runningSince)
+  // now can lag a tick behind a resume, so never count negative time
+  const running = Math.max(0, now - attempt.runningSince)
+  return attempt.elapsedMs + running
 }
 
 // null when there's no time limit
