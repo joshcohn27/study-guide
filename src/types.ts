@@ -10,7 +10,7 @@ export type QuestionTable = {
   rows: string[][]
 }
 
-type QuestionBase = {
+export type QuestionBase = {
   id: string
   points: number
   prompt: string
