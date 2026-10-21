@@ -27,7 +27,11 @@ function summaryText(question: Question, number: number): string {
   if (prompt.length > 70) {
     prompt = `${prompt.slice(0, 70)}...`
   }
-  return `Question ${number} (${question.id}) · ${TYPE_LABELS[question.type]} · ${formatPoints(question.points)} pts · ${prompt}`
+  let points = `${formatPoints(question.points)} pts`
+  if (question.points === 1) {
+    points = '1 pt'
+  }
+  return `Question ${number} (${question.id}) · ${TYPE_LABELS[question.type]} · ${points} · ${prompt}`
 }
 
 export function QuestionEditor(props: Props) {

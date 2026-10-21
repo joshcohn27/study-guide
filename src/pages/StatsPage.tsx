@@ -35,15 +35,17 @@ export function StatsPage() {
 
   return (
     <>
-      <h1>Stats by tag</h1>
-      <p>
-        Percent of points earned on tagged questions across finished attempts, weakest first. Open-ended
-        questions you haven't self-scored are left out.
-      </p>
+      <header className="page-head">
+        <h1>Stats by tag</h1>
+        <p className="page-sub">
+          Percent of points earned on tagged questions across finished attempts, weakest first. Open-ended questions you
+          haven't self-scored are left out.
+        </p>
+      </header>
 
       <p>
-        <label>
-          Course{' '}
+        <label className="inline-field">
+          Course
           <select value={courseId} onChange={(event) => setCourseId(event.target.value)}>
             <option value="">All courses</option>
             {courses.map((course) => (
@@ -55,7 +57,7 @@ export function StatsPage() {
         </label>
       </p>
 
-      <p>Based on {finishedCount} finished attempts.</p>
+      <p className="hint">Based on {finishedCount} finished attempts.</p>
 
       {stats.length === 0 && <p>No tagged questions have been graded yet. Add tags to questions to see stats here.</p>}
 

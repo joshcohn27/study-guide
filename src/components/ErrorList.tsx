@@ -3,7 +3,7 @@ export function ErrorList({ title, errors }: { title: string; errors: string[] }
     return null
   }
   return (
-    <section role="alert" aria-label={title}>
+    <section role="alert" aria-label={title} className="error-list">
       <h2>{title}</h2>
       <p>
         {errors.length} problem{errors.length === 1 ? '' : 's'} found. Nothing was saved.

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import type { ExamFile, Question, QuestionType, Section } from '../types'
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import type { Crumb } from '../components/Breadcrumbs'
 import { CopyFormatButton } from '../components/CopyFormatButton'
 import { ErrorList } from '../components/ErrorList'
 import { NumberField } from '../components/builder/fields'
@@ -167,25 +169,30 @@ function ExamBuilder({ initial, examId, courseLabels }: BuilderProps) {
 
   const offsets = questionOffsets(file.sections)
 
+  const crumbs: Crumb[] = [{ label: 'Exams', to: '/' }]
+  if (examId) {
+    crumbs.push({ label: initial.title, to: `/exams/${examId}` })
+  }
+  crumbs.push({ label: heading })
+
   return (
     <>
-      <h1>{heading}</h1>
-      {examId && (
-        <p>
-          <Link to={`/exams/${examId}`}>Go to exam page</Link>
-        </p>
-      )}
+      <Breadcrumbs crumbs={crumbs} />
+      <header className="page-head">
+        <h1>{heading}</h1>
+      </header>
 
-      <section aria-label="Exam details">
+      <section className="panel" aria-label="Exam details">
+        <h2 className="panel-title">Details</h2>
         <p>
-          <label>
-            Title{' '}
+          <label className="stack-label">
+            Title
             <input type="text" size={40} value={file.title} onChange={(event) => update({ ...file, title: event.target.value })} />
           </label>
         </p>
         <p>
-          <label>
-            Course{' '}
+          <label className="stack-label">
+            Course
             <input
               type="text"
               size={40}
@@ -233,19 +240,28 @@ function ExamBuilder({ initial, examId, courseLabels }: BuilderProps) {
       </p>
 
       <ErrorList title="Fix these before saving" errors={errors} />
-      {errors.length > 0 && <p>Paths count from 0, so sections[0].questions[0] is the first question of the first section.</p>}
+      {errors.length > 0 && (
+        <p className="hint">Paths count from 0, so sections[0].questions[0] is the first question of the first section.</p>
+      )}
 
-      <p>
-        <button type="button" onClick={save}>
+      <section className="panel" aria-label="Exam JSON format">
+        <CopyFormatButton />
+      </section>
+
+      <div className="save-bar">
+        <button type="button" className="primary" onClick={save}>
           Save exam
-        </button>{' '}
-        <button type="button" onClick={exportJson}>
-          Export exam as JSON
         </button>
-      </p>
-      {message && <p role="status">{message}</p>}
-
-      <CopyFormatButton />
+        <button type="button" onClick={exportJson}>
+          Export as JSON
+        </button>
+        {examId && <Link to={`/exams/${examId}`}>Go to exam page</Link>}
+        {message && (
+          <span role="status" className="save-message">
+            {message}
+          </span>
+        )}
+      </div>
     </>
   )
 }

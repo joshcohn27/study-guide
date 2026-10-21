@@ -72,32 +72,38 @@ export function ImportPage() {
 
   return (
     <>
-      <h1>Import an exam</h1>
-      <p>Paste exam JSON or pick a .json file, then check it. Nothing is saved until you confirm.</p>
-      <CopyFormatButton />
+      <header className="page-head">
+        <h1>Import an exam</h1>
+        <p className="page-sub">Paste exam JSON or pick a .json file, then check it. Nothing is saved until you confirm.</p>
+      </header>
 
       <form
+        className="panel"
         onSubmit={(event) => {
           event.preventDefault()
           check()
         }}
       >
         <p>
-          <label>
-            JSON file <input type="file" accept=".json,application/json" onChange={pickFile} />
+          <label className="stack-label">
+            JSON file
+            <input type="file" accept=".json,application/json" onChange={pickFile} />
           </label>
         </p>
         <p>
-          <label>
-            Exam JSON
-            <br />
-            <textarea rows={16} cols={80} value={text} onChange={(event) => changeText(event.target.value)} />
+          <label className="stack-label">
+            Or paste exam JSON
+            <textarea rows={14} className="code" value={text} onChange={(event) => changeText(event.target.value)} />
           </label>
         </p>
-        <button type="submit" disabled={text.trim() === ''}>
+        <button type="submit" className="primary" disabled={text.trim() === ''}>
           Check
         </button>
       </form>
+
+      <section className="panel" aria-label="Exam JSON format">
+        <CopyFormatButton />
+      </section>
 
       <ErrorList title="Fix these before importing" errors={errors} />
 
@@ -128,8 +134,10 @@ function ImportPreview({ preview, onSave }: { preview: Preview; onSave: () => vo
   }
 
   return (
-    <section aria-labelledby="preview-heading">
-      <h2 id="preview-heading">Preview</h2>
+    <section className="panel" aria-labelledby="preview-heading">
+      <h2 id="preview-heading" className="panel-title">
+        Preview
+      </h2>
       <dl>
         <dt>Title</dt>
         <dd>{exam.title}</dd>

@@ -40,11 +40,13 @@ export function SectionEditor(props: Props) {
   const headingId = `section-heading-${index}`
 
   return (
-    <section aria-labelledby={headingId}>
-      <h2 id={headingId}>Section {index + 1}</h2>
+    <section className="panel" aria-labelledby={headingId}>
+      <h2 id={headingId} className="panel-title">
+        Section {index + 1}
+      </h2>
       <p>
-        <label>
-          Section title{' '}
+        <label className="stack-label">
+          Section title
           <input
             type="text"
             size={40}
@@ -53,17 +55,18 @@ export function SectionEditor(props: Props) {
           />
         </label>
       </p>
-      <p>
-        <button type="button" disabled={index === 0} onClick={() => onMove(-1)}>
+      <p className="button-row">
+        <button type="button" className="small" disabled={index === 0} onClick={() => onMove(-1)}>
           Move section up
         </button>{' '}
-        <button type="button" disabled={index === sectionCount - 1} onClick={() => onMove(1)}>
+        <button type="button" className="small" disabled={index === sectionCount - 1} onClick={() => onMove(1)}>
           Move section down
         </button>{' '}
         <ConfirmButton
           label="Delete section"
           question={`Delete this section and its ${section.questions.length} questions?`}
           confirmLabel="Yes, delete"
+          danger
           onConfirm={onDelete}
         />
       </p>

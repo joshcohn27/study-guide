@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Attempt, AttemptMode, Course, Exam } from '../types'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 import { ConfirmButton } from '../components/ConfirmButton'
 import { buildAttempt, missedQuestionIds } from '../lib/attempt'
 import { countQuestions, courseLabel, examFileName, examToFile, totalPoints } from '../lib/examFile'
@@ -53,20 +54,29 @@ export function ExamPage() {
 
   return (
     <>
-      <h1>{exam.title}</h1>
-      <ExamSummary exam={exam} course={course} />
-      <p>
-        <Link to={`/exams/${exam.id}/edit`}>Edit exam</Link>{' '}
-        <button type="button" onClick={() => exportExam(exam, course)}>
-          Export exam as JSON
-        </button>{' '}
-        <ConfirmButton
-          label="Delete exam"
-          question="Delete this exam and all of its attempts?"
-          confirmLabel="Yes, delete"
-          onConfirm={removeExam}
-        />
-      </p>
+      <Breadcrumbs crumbs={[{ label: 'Exams', to: '/' }, { label: exam.title }]} />
+      <header className="page-head page-head-row">
+        <div>
+          <h1>{exam.title}</h1>
+          {course && <p className="page-sub">{courseLabel(course)}</p>}
+        </div>
+        <div className="button-row">
+          <Link to={`/exams/${exam.id}/edit`} className="button">
+            Edit
+          </Link>
+          <button type="button" onClick={() => exportExam(exam, course)}>
+            Export JSON
+          </button>
+          <ConfirmButton
+            label="Delete"
+            question="Delete this exam and all of its attempts?"
+            confirmLabel="Yes, delete"
+            danger
+            onConfirm={removeExam}
+          />
+        </div>
+      </header>
+      <ExamSummary exam={exam} />
       <StartForm key={exam.id} exam={exam} attempts={attempts} />
       <AttemptHistory attempts={attempts} onChanged={reload} />
     </>
@@ -78,23 +88,34 @@ function exportExam(exam: Exam, course: Course | undefined) {
   downloadText(examFileName(exam.title), JSON.stringify(file, null, 2))
 }
 
-function ExamSummary({ exam, course }: { exam: Exam; course: Course | undefined }) {
+function ExamSummary({ exam }: { exam: Exam }) {
   const points = totalPoints(exam.sections)
-  let timeText = 'No time limit'
+  let timeText = 'None'
   if (exam.timeLimitMinutes !== undefined) {
-    timeText = `Time limit: ${exam.timeLimitMinutes} minutes`
+    timeText = `${exam.timeLimitMinutes} minutes`
   }
   return (
     <section aria-label="About this exam">
-      {course && <p>{courseLabel(course)}</p>}
-      <p>
-        {countQuestions(exam.sections)} questions · {formatPoints(points.regular)} points
-        {points.extra > 0 && ` + ${formatPoints(points.extra)} extra credit`} · {timeText}
-      </p>
-      <ul>
+      <ul className="facts facts-bar">
+        <li>
+          <span>Points</span>
+          {formatPoints(points.regular)}
+          {points.extra > 0 && ` + ${formatPoints(points.extra)} extra`}
+        </li>
+        <li>
+          <span>Questions</span>
+          {countQuestions(exam.sections)}
+        </li>
+        <li>
+          <span>Time limit</span>
+          {timeText}
+        </li>
+      </ul>
+      <ul className="section-list">
         {exam.sections.map((section, index) => (
           <li key={index}>
-            {section.title}: {questionCountText(section.questions.length)}
+            <span>{section.title}</span>
+            <span className="hint">{questionCountText(section.questions.length)}</span>
           </li>
         ))}
       </ul>
@@ -124,9 +145,9 @@ function StartForm({ exam, attempts }: { exam: Exam; attempts: Attempt[] }) {
     return missedQuestionIds(attempt).length > 0
   })
 
-  let examModeText = 'Exam: all questions on one page, no timer, graded when you submit.'
+  let examModeText = 'All questions on one page, no timer, graded when you submit.'
   if (exam.timeLimitMinutes !== undefined) {
-    examModeText = `Exam: all questions on one page, ${exam.timeLimitMinutes} minute timer you can pause, graded when you submit.`
+    examModeText = `All questions on one page with a ${exam.timeLimitMinutes} minute timer you can pause. Graded when you submit.`
   }
 
   async function start(event: FormEvent) {
@@ -148,43 +169,51 @@ function StartForm({ exam, attempts }: { exam: Exam; attempts: Attempt[] }) {
   }
 
   return (
-    <section aria-labelledby="start-heading">
-      <h2 id="start-heading">Start</h2>
+    <section className="panel" aria-labelledby="start-heading">
+      <h2 id="start-heading" className="panel-title">
+        Start an attempt
+      </h2>
       <form onSubmit={start}>
         <fieldset>
           <legend>Mode</legend>
-          <label>
-            <input type="radio" name="mode" checked={mode === 'exam'} onChange={() => setMode('exam')} /> {examModeText}
-          </label>
-          <br />
-          <label>
-            <input type="radio" name="mode" checked={mode === 'practice'} onChange={() => setMode('practice')} />{' '}
-            Practice: one question at a time, check each answer as you go, no timer.
-          </label>
+          <div className="mode-options">
+            <label className="mode-option">
+              <input type="radio" name="mode" checked={mode === 'exam'} onChange={() => setMode('exam')} />
+              <span>
+                <strong>Exam</strong>
+                <span className="hint">{examModeText}</span>
+              </span>
+            </label>
+            <label className="mode-option">
+              <input type="radio" name="mode" checked={mode === 'practice'} onChange={() => setMode('practice')} />
+              <span>
+                <strong>Practice</strong>
+                <span className="hint">One question at a time. Check each answer as you go, no timer.</span>
+              </span>
+            </label>
+          </div>
         </fieldset>
 
         <fieldset>
           <legend>Options</legend>
-          <label>
+          <label className="check-row">
             <input
               type="checkbox"
               checked={shuffleQuestions}
               onChange={(event) => setShuffleQuestions(event.target.checked)}
-            />{' '}
+            />
             Shuffle questions within each section
           </label>
-          <br />
-          <label>
+          <label className="check-row">
             <input
               type="checkbox"
               checked={shuffleOptions}
               onChange={(event) => setShuffleOptions(event.target.checked)}
-            />{' '}
+            />
             Shuffle answer options
           </label>
-          <br />
-          <label>
-            Questions{' '}
+          <label className="stack-label">
+            Questions
             <select value={retryFromId} onChange={(event) => setRetryFromId(event.target.value)}>
               <option value="">All questions</option>
               {retryable.map((attempt) => (
@@ -196,7 +225,9 @@ function StartForm({ exam, attempts }: { exam: Exam; attempts: Attempt[] }) {
           </label>
         </fieldset>
 
-        <button type="submit">Start</button>
+        <button type="submit" className="primary">
+          Start
+        </button>
         {error && <p role="alert">{error}</p>}
       </form>
     </section>
@@ -236,8 +267,10 @@ function AttemptHistory({ attempts, onChanged }: { attempts: Attempt[]; onChange
   }
 
   return (
-    <section aria-labelledby="history-heading">
-      <h2 id="history-heading">Past attempts</h2>
+    <section className="panel" aria-labelledby="history-heading">
+      <h2 id="history-heading" className="panel-title">
+        Past attempts
+      </h2>
       {attempts.length === 0 && <p>No attempts yet.</p>}
       {attempts.length > 0 && (
         <table>
@@ -270,6 +303,7 @@ function AttemptHistory({ attempts, onChanged }: { attempts: Attempt[]; onChange
                       label="Delete"
                       question="Delete this attempt?"
                       confirmLabel="Yes, delete"
+                      danger
                       onConfirm={() => remove(attempt.id)}
                     />
                   </td>

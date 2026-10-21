@@ -60,23 +60,34 @@ export function SettingsPage() {
 
   return (
     <>
-      <h1>Settings</h1>
-      {message && <p role="status">{message}</p>}
+      <header className="page-head">
+        <h1>Settings</h1>
+      </header>
+      {message && (
+        <p role="status" className="notice">
+          {message}
+        </p>
+      )}
 
-      <section aria-labelledby="export-heading">
-        <h2 id="export-heading">Back up</h2>
+      <section className="panel" aria-labelledby="export-heading">
+        <h2 id="export-heading" className="panel-title">
+          Back up
+        </h2>
         <p>Download every course, exam, and attempt as one JSON file, so you can move to another device.</p>
         <button type="button" onClick={exportAll}>
           Export full backup
         </button>
       </section>
 
-      <section aria-labelledby="restore-heading">
-        <h2 id="restore-heading">Restore</h2>
+      <section className="panel" aria-labelledby="restore-heading">
+        <h2 id="restore-heading" className="panel-title">
+          Restore
+        </h2>
         <p>Restoring replaces everything stored here with the backup. A backup with any errors is not loaded.</p>
         <p>
-          <label>
-            Backup file <input type="file" accept=".json,application/json" onChange={pickFile} />
+          <label className="stack-label">
+            Backup file
+            <input type="file" accept=".json,application/json" onChange={pickFile} />
           </label>
         </p>
         {backupText !== '' && (
@@ -90,13 +101,16 @@ export function SettingsPage() {
         <ErrorList title="This backup can't be restored" errors={errors} />
       </section>
 
-      <section aria-labelledby="clear-heading">
-        <h2 id="clear-heading">Clear all data</h2>
+      <section className="panel" aria-labelledby="clear-heading">
+        <h2 id="clear-heading" className="panel-title">
+          Clear all data
+        </h2>
         <p>Deletes every course, exam, and attempt in this browser. Export a backup first if you want to keep them.</p>
         <ConfirmButton
           label="Clear all data"
           question="Delete everything? This can't be undone."
           confirmLabel="Yes, delete everything"
+          danger
           onConfirm={clearAll}
         />
       </section>

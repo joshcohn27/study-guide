@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { currentTheme, saveTheme } from '../lib/theme'
 import type { Theme } from '../lib/theme'
+import { MoonIcon, SunIcon } from './Icons'
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(currentTheme)
@@ -14,14 +15,17 @@ export function ThemeToggle() {
     setTheme(next)
   }
 
-  let label = 'Dark mode'
+  let label = 'Dark'
+  let icon = <MoonIcon />
   if (theme === 'dark') {
-    label = 'Light mode'
+    label = 'Light'
+    icon = <SunIcon />
   }
 
   return (
-    <button type="button" onClick={toggle}>
-      {label}
+    <button type="button" className="rail-theme" onClick={toggle} aria-label={`Switch to ${label.toLowerCase()} mode`}>
+      {icon}
+      <span>{label}</span>
     </button>
   )
 }
