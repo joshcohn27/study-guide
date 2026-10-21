@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import type { Attempt } from '../types'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 import { AttemptReview } from '../components/attempt/AttemptReview'
 import { ExamRunner } from '../components/attempt/ExamRunner'
 import { PracticeRunner } from '../components/attempt/PracticeRunner'
@@ -49,18 +50,26 @@ function AttemptView({ initial }: { initial: Attempt }) {
   }, [])
 
   const finished = attempt.endedAt !== null
-  let heading = `${attempt.examTitle}: exam`
+  let pageName = 'Exam'
   if (attempt.mode === 'practice') {
-    heading = `${attempt.examTitle}: practice`
+    pageName = 'Practice'
   }
   if (finished) {
-    heading = `${attempt.examTitle}: results`
+    pageName = 'Results'
   }
 
   return (
     <>
-      <h1>{heading}</h1>
-      {attempt.retryOfAttemptId && <p>Retrying only the questions missed last time.</p>}
+      <Breadcrumbs
+        crumbs={[{ label: 'Exams', to: '/' }, { label: attempt.examTitle, to: `/exams/${attempt.examId}` }, { label: pageName }]}
+      />
+      <header className="page-head">
+        <h1>{attempt.examTitle}</h1>
+        <p className="page-sub">
+          {pageName}
+          {attempt.retryOfAttemptId && ' · retrying only the questions missed last time'}
+        </p>
+      </header>
       {saveError && <p role="alert">{saveError}</p>}
       {finished && <AttemptReview attempt={attempt} onChange={update} />}
       {!finished && attempt.mode === 'exam' && <ExamRunner attempt={attempt} onChange={update} />}

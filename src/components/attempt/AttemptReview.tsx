@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { Attempt } from '../../types'
-import { buildAttempt, missedQuestionIds, questionNumbers, setSelfScore } from '../../lib/attempt'
-import { formatPercent, formatPoints, scoreSections, summarizeScore } from '../../lib/grade'
+import { allQuestions, buildAttempt, missedQuestionIds, questionNumbers, setSelfScore } from '../../lib/attempt'
+import { formatPercent, formatPoints, gradeQuestion, scoreSections, summarizeScore } from '../../lib/grade'
 import { getExam, saveAttempt } from '../../lib/storage'
 import { formatDate, formatDuration } from '../../lib/time'
 import { QuestionCard } from '../QuestionCard'
+import { QuestionNav } from './QuestionNav'
+import type { NavItem } from './QuestionNav'
 
 type Props = {
   attempt: Attempt
@@ -29,11 +31,16 @@ export function AttemptReview({ attempt, onChange }: Props) {
   const missed = missedQuestionIds(attempt)
   const hasExtra = summary.extraPossible > 0
 
-  let waitingText = `${summary.ungradedCount} open-ended questions are waiting for your self-score below.`
+  const navItems: NavItem[] = allQuestions(attempt.sections).map((q) => {
+    const result = gradeQuestion(q, attempt.answers[q.id], attempt.selfScores[q.id])
+    return { id: q.id, number: numbers[q.id], state: result.status }
+  })
+  const rightCount = navItems.filter((item) => item.state === 'correct').length
+
+  let waitingText = `${summary.ungradedCount} open-ended questions need your self-score. They count as 0 until scored.`
   if (summary.ungradedCount === 1) {
-    waitingText = '1 open-ended question is waiting for your self-score below.'
+    waitingText = '1 open-ended question needs your self-score. It counts as 0 until scored.'
   }
-  waitingText = `${waitingText} Unscored questions count as 0.`
 
   async function retryMissed() {
     const exam = await getExam(attempt.examId)
@@ -62,97 +69,116 @@ export function AttemptReview({ attempt, onChange }: Props) {
   }
 
   return (
-    <>
-      <section aria-labelledby="score-heading">
-        <h2 id="score-heading">Score</h2>
-        <dl>
-          <dt>Score</dt>
-          <dd>
-            {formatPoints(summary.earned)} of {formatPoints(summary.possible)} ({formatPercent(summary.percent)})
-          </dd>
-          {hasExtra && (
-            <>
-              <dt>Extra credit</dt>
-              <dd>
-                {formatPoints(summary.extraEarned)} of {formatPoints(summary.extraPossible)}
-              </dd>
-              <dt>With extra credit</dt>
-              <dd>
-                {formatPoints(summary.earned + summary.extraEarned)} of {formatPoints(summary.possible)}
-              </dd>
-            </>
-          )}
-          <dt>Time used</dt>
-          <dd>{formatDuration(attempt.elapsedMs)}</dd>
-          <dt>Mode</dt>
-          <dd>{modeLabel(attempt)}</dd>
-          <dt>Started</dt>
-          <dd>{formatDate(attempt.startedAt)}</dd>
-          {attempt.endedAt && (
-            <>
-              <dt>Finished</dt>
-              <dd>{formatDate(attempt.endedAt)}</dd>
-            </>
-          )}
-        </dl>
-        {summary.ungradedCount > 0 && <p>{waitingText}</p>}
-
-        <table>
-          <caption>By section</caption>
-          <thead>
-            <tr>
-              <th scope="col">Section</th>
-              <th scope="col">Score</th>
-              {hasExtra && <th scope="col">Extra credit</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {sections.map((section, index) => (
-              <tr key={index}>
-                <th scope="row">{section.title}</th>
-                <td>
-                  {formatPoints(section.earned)} of {formatPoints(section.possible)}
-                </td>
-                {hasExtra && (
-                  <td>
-                    {formatPoints(section.extraEarned)} of {formatPoints(section.extraPossible)}
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <p>
-          {missed.length > 0 && (
-            <button type="button" onClick={retryMissed}>
-              Retry the {missed.length} I missed
-            </button>
-          )}{' '}
-          <Link to={`/exams/${attempt.examId}`}>Back to exam</Link>
+    <div className="attempt-layout">
+      <aside className="attempt-side" aria-label="Results">
+        <p className="hint">
+          {rightCount} of {navItems.length} fully correct
         </p>
-        {retryError && <p role="alert">{retryError}</p>}
-      </section>
+        <QuestionNav items={navItems} />
+        <ul className="legend" aria-label="Legend">
+          <li className="legend-correct">Correct</li>
+          <li className="legend-partial">Partial</li>
+          <li className="legend-wrong">Incorrect</li>
+          <li className="legend-ungraded">Self-score</li>
+        </ul>
+      </aside>
 
-      <h2>Questions</h2>
-      {attempt.sections.map((section, sectionIndex) => (
-        <section key={sectionIndex}>
-          <h2>{section.title}</h2>
-          {section.questions.map((q) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              number={numbers[q.id]}
-              answer={attempt.answers[q.id]}
-              onAnswer={() => {}}
-              reveal={true}
-              selfScore={attempt.selfScores[q.id]}
-              onSelfScore={(points) => onChange(setSelfScore(attempt, q.id, points))}
-              startOrder={attempt.orderingStart[q.id]}
-            />
-          ))}
+      <div className="attempt-main">
+        <section className="panel score-panel" aria-labelledby="score-heading">
+          <h2 id="score-heading" className="visually-hidden">
+            Score
+          </h2>
+          <p className="score-line">
+            <span className="score-number">{formatPoints(summary.earned)}</span>
+            <span className="score-out-of"> / {formatPoints(summary.possible)} pts</span>
+            <span className="score-percent">{formatPercent(summary.percent)}</span>
+          </p>
+          <ul className="facts">
+            {hasExtra && (
+              <li>
+                <span>Extra credit</span>
+                {formatPoints(summary.extraEarned)} / {formatPoints(summary.extraPossible)}
+              </li>
+            )}
+            {hasExtra && (
+              <li>
+                <span>With extra credit</span>
+                {formatPoints(summary.earned + summary.extraEarned)} / {formatPoints(summary.possible)}
+              </li>
+            )}
+            <li>
+              <span>Time used</span>
+              {formatDuration(attempt.elapsedMs)}
+            </li>
+            <li>
+              <span>Mode</span>
+              {modeLabel(attempt)}
+            </li>
+            {attempt.endedAt && (
+              <li>
+                <span>Finished</span>
+                {formatDate(attempt.endedAt)}
+              </li>
+            )}
+          </ul>
+          {summary.ungradedCount > 0 && <p className="notice">{waitingText}</p>}
+
+          <table>
+            <caption>By section</caption>
+            <thead>
+              <tr>
+                <th scope="col">Section</th>
+                <th scope="col">Score</th>
+                {hasExtra && <th scope="col">Extra credit</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {sections.map((section, index) => (
+                <tr key={index}>
+                  <th scope="row">{section.title}</th>
+                  <td>
+                    {formatPoints(section.earned)} / {formatPoints(section.possible)}
+                  </td>
+                  {hasExtra && (
+                    <td>
+                      {formatPoints(section.extraEarned)} / {formatPoints(section.extraPossible)}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="button-row">
+            {missed.length > 0 && (
+              <button type="button" className="primary" onClick={retryMissed}>
+                Retry the {missed.length} I missed
+              </button>
+            )}
+            <Link to={`/exams/${attempt.examId}`}>Back to exam</Link>
+          </div>
+          {retryError && <p role="alert">{retryError}</p>}
         </section>
-      ))}
-    </>
+
+        {attempt.sections.map((section, sectionIndex) => (
+          <section key={sectionIndex} className="exam-section">
+            <h2 className="section-title">{section.title}</h2>
+            {section.questions.map((q) => (
+              <QuestionCard
+                key={q.id}
+                question={q}
+                number={numbers[q.id]}
+                answer={attempt.answers[q.id]}
+                onAnswer={() => {}}
+                reveal={true}
+                selfScore={attempt.selfScores[q.id]}
+                onSelfScore={(points) => onChange(setSelfScore(attempt, q.id, points))}
+                startOrder={attempt.orderingStart[q.id]}
+              />
+            ))}
+          </section>
+        ))}
+      </div>
+    </div>
   )
 }

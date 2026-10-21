@@ -15,6 +15,8 @@ import { formatDuration } from '../../lib/time'
 import { useNow } from '../../lib/useLoad'
 import { ConfirmButton } from '../ConfirmButton'
 import { QuestionCard } from '../QuestionCard'
+import { QuestionNav } from './QuestionNav'
+import type { NavItem } from './QuestionNav'
 
 type Props = {
   attempt: Attempt
@@ -38,70 +40,99 @@ export function ExamRunner({ attempt, onChange }: Props) {
 
   const questions = allQuestions(attempt.sections)
   const numbers = questionNumbers(attempt.sections)
-  const answeredCount = questions.filter((q) => isAnswered(q, attempt.answers[q.id])).length
+  const navItems: NavItem[] = questions.map((q) => {
+    let state: NavItem['state'] = 'empty'
+    if (isAnswered(q, attempt.answers[q.id])) {
+      state = 'answered'
+    }
+    return { id: q.id, number: numbers[q.id], state }
+  })
+  const answeredCount = navItems.filter((item) => item.state === 'answered').length
   const unansweredCount = questions.length - answeredCount
 
-  let clockText = `Time used: ${formatDuration(used)}`
+  let clockLabel = 'Time used'
+  let clockValue = formatDuration(used)
   if (left !== null) {
-    clockText = `Time left: ${formatDuration(left)}`
+    clockLabel = 'Time left'
+    clockValue = formatDuration(left)
   }
 
   let submitQuestion = 'Submit and grade now?'
   if (unansweredCount > 0) {
-    submitQuestion = `${unansweredCount} unanswered. Submit and grade anyway?`
+    submitQuestion = `${unansweredCount} unanswered. Submit anyway?`
   }
 
+  const submitButton = (
+    <ConfirmButton
+      label="Submit and grade"
+      question={submitQuestion}
+      confirmLabel="Yes, submit"
+      primary
+      onConfirm={() => onChange(finishAttempt(attempt, Date.now()))}
+    />
+  )
+
   return (
-    <>
-      <section aria-label="Exam status">
-        <p role="timer">{clockText}</p>
-        <p>
+    <div className="attempt-layout">
+      <aside className="attempt-side" aria-label="Exam status">
+        <p className="clock">
+          <span className="clock-label">{clockLabel}</span>
+          <span className="clock-value" role="timer">
+            {clockValue}
+          </span>
+        </p>
+        <p className="hint">
           {answeredCount} of {questions.length} answered
         </p>
+        <progress max={questions.length} value={answeredCount} aria-label="Progress" />
         {running && (
           <button type="button" onClick={() => onChange(pauseClock(attempt, Date.now()))}>
             Pause
           </button>
         )}
         {!running && (
-          <button type="button" onClick={() => onChange(resumeClock(attempt, Date.now()))}>
+          <button type="button" className="primary" onClick={() => onChange(resumeClock(attempt, Date.now()))}>
             Resume
           </button>
         )}
-      </section>
+        {running && (
+          <>
+            <QuestionNav items={navItems} />
+            {submitButton}
+          </>
+        )}
+      </aside>
 
-      {!running && <p>Paused. Questions are hidden while the clock is stopped.</p>}
+      <div className="attempt-main">
+        {!running && (
+          <div className="paused">
+            <h2>Paused</h2>
+            <p>Questions are hidden while the clock is stopped. Resume when you're ready.</p>
+          </div>
+        )}
 
-      {running &&
-        attempt.sections.map((section, sectionIndex) => (
-          <section key={sectionIndex}>
-            <h2>{section.title}</h2>
-            {section.questions.map((q) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                number={numbers[q.id]}
-                answer={attempt.answers[q.id]}
-                onAnswer={(answer) => onChange(setAnswer(attempt, q.id, answer))}
-                reveal={false}
-                selfScore={undefined}
-                onSelfScore={() => {}}
-                startOrder={attempt.orderingStart[q.id]}
-              />
-            ))}
-          </section>
-        ))}
+        {running &&
+          attempt.sections.map((section, sectionIndex) => (
+            <section key={sectionIndex} className="exam-section">
+              <h2 className="section-title">{section.title}</h2>
+              {section.questions.map((q) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  number={numbers[q.id]}
+                  answer={attempt.answers[q.id]}
+                  onAnswer={(answer) => onChange(setAnswer(attempt, q.id, answer))}
+                  reveal={false}
+                  selfScore={undefined}
+                  onSelfScore={() => {}}
+                  startOrder={attempt.orderingStart[q.id]}
+                />
+              ))}
+            </section>
+          ))}
 
-      {running && (
-        <p>
-          <ConfirmButton
-            label="Submit and grade"
-            question={submitQuestion}
-            confirmLabel="Yes, submit"
-            onConfirm={() => onChange(finishAttempt(attempt, Date.now()))}
-          />
-        </p>
-      )}
-    </>
+        {running && <div className="submit-row">{submitButton}</div>}
+      </div>
+    </div>
   )
 }
