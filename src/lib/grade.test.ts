@@ -200,10 +200,16 @@ describe('gradeOrdering', () => {
 
 describe('gradeShortAnswer', () => {
   it('uses the self score', () => {
-    expect(gradeShortAnswer(shortAnswer, 'full')).toBe(3)
-    expect(gradeShortAnswer(shortAnswer, 'half')).toBe(1.5)
-    expect(gradeShortAnswer(shortAnswer, 'none')).toBe(0)
+    expect(gradeShortAnswer(shortAnswer, 3)).toBe(3)
+    expect(gradeShortAnswer(shortAnswer, 1.5)).toBe(1.5)
+    expect(gradeShortAnswer(shortAnswer, 0)).toBe(0)
     expect(gradeShortAnswer(shortAnswer, undefined)).toBeNull()
+  })
+
+  it('keeps the self score between 0 and the points', () => {
+    expect(gradeShortAnswer(shortAnswer, 5)).toBe(3)
+    expect(gradeShortAnswer(shortAnswer, -1)).toBe(0)
+    expect(gradeShortAnswer(shortAnswer, Number.NaN)).toBeNull()
   })
 })
 
@@ -225,7 +231,7 @@ describe('gradeQuestion', () => {
   it('marks short answers ungraded until self-scored', () => {
     const answer = { type: 'short_answer' as const, value: 'my answer' }
     expect(gradeQuestion(shortAnswer, answer, undefined).status).toBe('ungraded')
-    expect(gradeQuestion(shortAnswer, answer, 'half').status).toBe('partial')
+    expect(gradeQuestion(shortAnswer, answer, 1.5).status).toBe('partial')
   })
 
   it('ignores an answer saved for a different type', () => {
@@ -273,7 +279,7 @@ describe('scoring a whole attempt', () => {
       percent: 37.5,
       ungradedCount: 1,
     })
-    const scored = summarizeScore(sections, answers, { sa: 'full' })
+    const scored = summarizeScore(sections, answers, { sa: 3 })
     expect(scored.earned).toBe(6)
     expect(scored.percent).toBe(75)
     expect(scored.ungradedCount).toBe(0)

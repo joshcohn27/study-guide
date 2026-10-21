@@ -1,6 +1,5 @@
 import type {
   Answer,
-  AnswerFor,
   FillBlankQuestion,
   MatchingQuestion,
   MultiMatchQuestion,
@@ -163,31 +162,27 @@ export function gradeOrdering(q: OrderingQuestion, value: string[] | undefined):
   return 0
 }
 
-// null means it hasn't been self-scored yet
+// null means it hasn't been self-scored yet. the score is kept between 0 and the points.
 export function gradeShortAnswer(q: ShortAnswerQuestion, selfScore: SelfScore | undefined): number | null {
-  if (selfScore === 'full') {
-    return q.points
+  if (selfScore === undefined) {
+    return null
   }
-  if (selfScore === 'half') {
-    return q.points / 2
+  if (!Number.isFinite(selfScore)) {
+    return null
   }
-  if (selfScore === 'none') {
-    return 0
-  }
-  return null
+  return Math.min(q.points, Math.max(0, selfScore))
 }
 
-export function answerValue<T extends QuestionType>(
-  answer: Answer | undefined,
-  type: T,
-): AnswerFor<T>['value'] | undefined {
+type AnswerValues = { [A in Answer as A['type']]: A['value'] }
+
+export function answerValue<T extends QuestionType>(answer: Answer | undefined, type: T): AnswerValues[T] | undefined {
   if (!answer) {
     return undefined
   }
   if (answer.type !== type) {
     return undefined
   }
-  return (answer as AnswerFor<T>).value
+  return answer.value as AnswerValues[T]
 }
 
 function earnedFor(q: Question, answer: Answer | undefined, selfScore: SelfScore | undefined): number | null {

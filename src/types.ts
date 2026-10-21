@@ -144,7 +144,8 @@ export type Answer =
 
 export type AnswerFor<T extends QuestionType> = Extract<Answer, { type: T }>
 
-export type SelfScore = 'full' | 'half' | 'none'
+// points the user gave themself on an open-ended question, 0 up to the question's points
+export type SelfScore = number
 
 export type AttemptMode = 'exam' | 'practice'
 
