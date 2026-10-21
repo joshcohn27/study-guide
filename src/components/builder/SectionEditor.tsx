@@ -51,7 +51,9 @@ export function SectionEditor(props: Props) {
             value={section.title}
             onChange={(event) => onChange({ ...section, title: event.target.value })}
           />
-        </label>{' '}
+        </label>
+      </p>
+      <p>
         <button type="button" disabled={index === 0} onClick={() => onMove(-1)}>
           Move section up
         </button>{' '}

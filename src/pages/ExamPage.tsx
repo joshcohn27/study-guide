@@ -94,12 +94,19 @@ function ExamSummary({ exam, course }: { exam: Exam; course: Course | undefined 
       <ul>
         {exam.sections.map((section, index) => (
           <li key={index}>
-            {section.title}: {section.questions.length} questions
+            {section.title}: {questionCountText(section.questions.length)}
           </li>
         ))}
       </ul>
     </section>
   )
+}
+
+function questionCountText(count: number): string {
+  if (count === 1) {
+    return '1 question'
+  }
+  return `${count} questions`
 }
 
 function StartForm({ exam, attempts }: { exam: Exam; attempts: Attempt[] }) {

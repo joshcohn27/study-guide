@@ -2,6 +2,14 @@ import type { MatchingQuestion } from '../../types'
 import { OptionList } from './OptionList'
 import type { InputProps } from './types'
 
+function optionText(question: MatchingQuestion, key: string): string {
+  const option = question.options.find((item) => item.key === key)
+  if (!option) {
+    return key
+  }
+  return `${option.key}. ${option.text}`
+}
+
 export function MatchingInput({ question, value, onChange, reveal }: InputProps<MatchingQuestion, string[]>) {
   const picked = value ?? question.rows.map(() => '')
 
@@ -42,7 +50,7 @@ export function MatchingInput({ question, value, onChange, reveal }: InputProps<
                   ))}
                 </select>
               </td>
-              {reveal && <td>{row.answer}</td>}
+              {reveal && <td>{optionText(question, row.answer)}</td>}
             </tr>
           ))}
         </tbody>
